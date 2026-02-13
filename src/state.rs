@@ -146,8 +146,8 @@ pub struct StateStore {
 
 impl StateStore {
     pub fn new(app_name: &str) -> Result<Self> {
-        let project_dirs = ProjectDirs::from("", "", app_name)
-            .context("Could not resolve config directory")?;
+        let project_dirs =
+            ProjectDirs::from("", "", app_name).context("Could not resolve config directory")?;
         let base_dir = project_dirs.config_dir().to_path_buf();
 
         Ok(Self { base_dir })
@@ -196,5 +196,6 @@ impl StateStore {
 
 pub fn now_rfc3339() -> String {
     let now = OffsetDateTime::now_local().unwrap_or_else(|_| OffsetDateTime::now_utc());
-    now.format(&Rfc3339).unwrap_or_else(|_| "unknown".to_string())
+    now.format(&Rfc3339)
+        .unwrap_or_else(|_| "unknown".to_string())
 }

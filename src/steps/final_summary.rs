@@ -38,7 +38,11 @@ impl Step for FinalSummaryStep {
         } else {
             format!("{}/{}", ctx.inputs.owner, ctx.inputs.repo_name)
         };
-        let tap_path = ctx.state.tap_path.clone().unwrap_or_else(|| "<unknown>".to_string());
+        let tap_path = ctx
+            .state
+            .tap_path
+            .clone()
+            .unwrap_or_else(|| "<unknown>".to_string());
         let state_path = ctx.state_store.state_path(&ctx.run_id);
 
         println!("\nSummary");
@@ -59,11 +63,7 @@ impl Step for FinalSummaryStep {
         println!("\nNext steps");
         println!("  - Edit the formula and replace the TODO fields.");
 
-        let install_formula = ctx
-            .state
-            .formula_name
-            .as_deref()
-            .unwrap_or(&ctx.inputs.tap);
+        let install_formula = ctx.state.formula_name.as_deref().unwrap_or(&ctx.inputs.tap);
         println!(
             "  - brew install {}/{} (once the formula URL and sha256 are valid)",
             tap_name, install_formula

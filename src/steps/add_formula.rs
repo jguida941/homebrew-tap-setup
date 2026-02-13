@@ -172,7 +172,10 @@ impl Step for AddFormulaStep {
         match ctx.inputs.formula_mode {
             FormulaMode::Stub => {
                 fs::create_dir_all(&formula_dir).with_context(|| {
-                    format!("failed to create Formula directory: {}", formula_dir.display())
+                    format!(
+                        "failed to create Formula directory: {}",
+                        formula_dir.display()
+                    )
                 })?;
 
                 let formula_path = Self::stub_formula_path(ctx)?;

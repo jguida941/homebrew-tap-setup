@@ -3,9 +3,9 @@ use serde::Deserialize;
 use std::path::Path;
 use std::process::Command;
 
+use crate::inputs::Visibility;
 use crate::runner::{Step, VerifyStatus};
 use crate::state::RunContext;
-use crate::inputs::Visibility;
 
 pub struct GhRepoCreateStep;
 
@@ -42,13 +42,7 @@ impl GhRepoCreateStep {
 
     fn fetch_repo_urls(repo_slug: &str) -> Result<RepoUrls> {
         let output = Command::new("gh")
-            .args([
-                "repo",
-                "view",
-                repo_slug,
-                "--json",
-                "sshUrl,url",
-            ])
+            .args(["repo", "view", repo_slug, "--json", "sshUrl,url"])
             .output()
             .context("failed to run gh repo view")?;
 
@@ -65,7 +59,13 @@ impl GhRepoCreateStep {
 
     fn git_remote_url(path: &Path, remote: &str) -> Result<Option<String>> {
         let output = Command::new("git")
-            .args(["-C", path.to_str().unwrap_or(""), "remote", "get-url", remote])
+            .args([
+                "-C",
+                path.to_str().unwrap_or(""),
+                "remote",
+                "get-url",
+                remote,
+            ])
             .output()
             .context("failed to query git remote")?;
 
@@ -75,7 +75,9 @@ impl GhRepoCreateStep {
         }
 
         let stderr = String::from_utf8_lossy(&output.stderr).to_lowercase();
-        if stderr.contains("no such remote") || stderr.contains("does not appear to be a git repository") {
+        if stderr.contains("no such remote")
+            || stderr.contains("does not appear to be a git repository")
+        {
             return Ok(None);
         }
 
@@ -84,7 +86,13 @@ impl GhRepoCreateStep {
 
     fn ensure_branch(path: &Path, branch: &str) -> Result<()> {
         let output = Command::new("git")
-            .args(["-C", path.to_str().unwrap_or(""), "rev-parse", "--abbrev-ref", "HEAD"])
+            .args([
+                "-C",
+                path.to_str().unwrap_or(""),
+                "rev-parse",
+                "--abbrev-ref",
+                "HEAD",
+            ])
             .output()
             .context("failed to read current git branch")?;
 
@@ -104,7 +112,10 @@ impl GhRepoCreateStep {
             .context("failed to rename git branch")?;
 
         if !status.success() {
-            anyhow::bail!("git branch -M returned non-zero status: {:?}", status.code());
+            anyhow::bail!(
+                "git branch -M returned non-zero status: {:?}",
+                status.code()
+            );
         }
 
         Ok(())
@@ -153,7 +164,10 @@ impl Step for GhRepoCreateStep {
             Visibility::Private => "--private",
         };
 
-        println!("    gh repo create {} --source {} --push", repo_slug, tap_path);
+        println!(
+            "    gh repo create {} --source {} --push",
+            repo_slug, tap_path
+        );
 
         let status = Command::new("gh")
             .args([

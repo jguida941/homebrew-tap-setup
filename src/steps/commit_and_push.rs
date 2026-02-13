@@ -22,7 +22,13 @@ impl CommitAndPushStep {
 
     fn ensure_origin(path: &Path) -> Result<()> {
         let output = Command::new("git")
-            .args(["-C", path.to_str().unwrap_or(""), "remote", "get-url", "origin"])
+            .args([
+                "-C",
+                path.to_str().unwrap_or(""),
+                "remote",
+                "get-url",
+                "origin",
+            ])
             .output()
             .context("failed to read git remote origin")?;
 
@@ -90,7 +96,13 @@ impl CommitAndPushStep {
 
         if branch.is_empty() {
             let rev = Command::new("git")
-                .args(["-C", path.to_str().unwrap_or(""), "rev-parse", "--abbrev-ref", "HEAD"])
+                .args([
+                    "-C",
+                    path.to_str().unwrap_or(""),
+                    "rev-parse",
+                    "--abbrev-ref",
+                    "HEAD",
+                ])
                 .output()
                 .context("failed to read current branch")?;
 

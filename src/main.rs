@@ -1,7 +1,7 @@
+mod inputs;
 mod runner;
 mod state;
 mod steps;
-mod inputs;
 
 use anyhow::Result;
 use clap::Parser;
@@ -20,7 +20,11 @@ use crate::steps::validate_tap::ValidateTapStep;
 #[derive(Parser, Debug)]
 #[command(author, version, about = "Homebrew tap setup helper")]
 struct Cli {
-    #[arg(long, default_value_t = false, help = "Print actions without applying them")]
+    #[arg(
+        long,
+        default_value_t = false,
+        help = "Print actions without applying them"
+    )]
     dry_run: bool,
 
     #[arg(long, help = "Resume a previous run by ID")]
@@ -44,7 +48,10 @@ struct Cli {
     #[arg(long, value_enum, default_value_t = FormulaMode::Stub)]
     formula_mode: FormulaMode,
 
-    #[arg(long, help = "Source URL for brew create (required for brew-create mode)")]
+    #[arg(
+        long,
+        help = "Source URL for brew create (required for brew-create mode)"
+    )]
     formula_url: Option<String>,
 
     #[arg(long, help = "Formula name to use with brew create (optional)")]
@@ -56,8 +63,12 @@ fn main() -> Result<()> {
     let mut ctx = if let Some(run_id) = cli.resume {
         RunContext::load(run_id, cli.dry_run)?
     } else {
-        let owner = cli.owner.ok_or_else(|| anyhow::anyhow!("--owner is required"))?;
-        let tap = cli.tap.ok_or_else(|| anyhow::anyhow!("--tap is required"))?;
+        let owner = cli
+            .owner
+            .ok_or_else(|| anyhow::anyhow!("--owner is required"))?;
+        let tap = cli
+            .tap
+            .ok_or_else(|| anyhow::anyhow!("--tap is required"))?;
         let inputs = Inputs::new(
             owner,
             tap,

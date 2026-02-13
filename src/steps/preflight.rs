@@ -48,10 +48,7 @@ impl PreflightStep {
         }
 
         if !failures.is_empty() {
-            anyhow::bail!(
-                "Required tools failed to run: {}",
-                failures.join("; ")
-            );
+            anyhow::bail!("Required tools failed to run: {}", failures.join("; "));
         }
 
         Ok(())
