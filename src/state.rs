@@ -40,6 +40,26 @@ impl RunContext {
         })
     }
 
+    pub fn load(run_id: String, dry_run: bool) -> Result<Self> {
+        let state_store = StateStore::new(APP_NAME)?;
+        let mut state = state_store.read_state(&run_id)?;
+        let inputs = state
+            .inputs
+            .clone()
+            .ok_or_else(|| anyhow::anyhow!("state does not contain inputs"))?;
+
+        state.dry_run = dry_run;
+        state_store.write_state(&run_id, &state)?;
+
+        Ok(Self {
+            run_id,
+            dry_run,
+            state_store,
+            state,
+            inputs,
+        })
+    }
+
     pub fn persist(&self) -> Result<()> {
         self.state_store.write_state(&self.run_id, &self.state)
     }
@@ -131,6 +151,15 @@ impl StateStore {
         let base_dir = project_dirs.config_dir().to_path_buf();
 
         Ok(Self { base_dir })
+    }
+
+    pub fn read_state(&self, run_id: &str) -> Result<State> {
+        let state_path = self.state_path_internal(run_id);
+        let data = fs::read(&state_path)
+            .with_context(|| format!("Failed to read state: {}", state_path.display()))?;
+        let state = serde_json::from_slice(&data)
+            .with_context(|| format!("Failed to parse state: {}", state_path.display()))?;
+        Ok(state)
     }
 
     pub fn init_run(&self, run_id: &str, state: &State) -> Result<()> {

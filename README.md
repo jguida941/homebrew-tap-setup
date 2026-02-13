@@ -32,6 +32,7 @@ cargo run -- \
 
 Flags:
 - `--dry-run`: skip apply steps but record state
+- `--resume <run-id>`: resume a previous run using the stored inputs
 - `--repo-name`: override the repo name (default: `homebrew-<tap>`)
 - `--formula-mode`: `stub` or `brew-create`
 - `--formula-url`: required for `brew-create`

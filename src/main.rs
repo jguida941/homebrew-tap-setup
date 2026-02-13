@@ -23,11 +23,14 @@ struct Cli {
     #[arg(long, default_value_t = false, help = "Print actions without applying them")]
     dry_run: bool,
 
+    #[arg(long, help = "Resume a previous run by ID")]
+    resume: Option<String>,
+
     #[arg(long, help = "GitHub owner or org for the tap repo")]
-    owner: String,
+    owner: Option<String>,
 
     #[arg(long, help = "Tap short name (without the homebrew- prefix)")]
-    tap: String,
+    tap: Option<String>,
 
     #[arg(long, help = "Override repo name (defaults to homebrew-<tap>)")]
     repo_name: Option<String>,
@@ -50,18 +53,23 @@ struct Cli {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let inputs = Inputs::new(
-        cli.owner,
-        cli.tap,
-        cli.repo_name,
-        cli.visibility,
-        cli.branch,
-        cli.formula_mode,
-        cli.formula_url,
-        cli.formula_name,
-    )?;
-
-    let mut ctx = RunContext::new(cli.dry_run, inputs)?;
+    let mut ctx = if let Some(run_id) = cli.resume {
+        RunContext::load(run_id, cli.dry_run)?
+    } else {
+        let owner = cli.owner.ok_or_else(|| anyhow::anyhow!("--owner is required"))?;
+        let tap = cli.tap.ok_or_else(|| anyhow::anyhow!("--tap is required"))?;
+        let inputs = Inputs::new(
+            owner,
+            tap,
+            cli.repo_name,
+            cli.visibility,
+            cli.branch,
+            cli.formula_mode,
+            cli.formula_url,
+            cli.formula_name,
+        )?;
+        RunContext::new(cli.dry_run, inputs)?
+    };
     let runner = Runner::new(vec![
         Box::new(PreflightStep::new()),
         Box::new(BrewTapNewStep::new()),
