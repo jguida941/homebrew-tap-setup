@@ -47,3 +47,13 @@ Each run writes state to:
 ## Notes
 - If your repo name does not follow `homebrew-<tap>`, the shorthand `brew tap owner/<tap>` will not work.
 - The formula produced by `brew create` may still need edits (description, homepage, license, test).
+
+## Current Status (2026-02-13)
+- End-to-end flow implemented: preflight -> tap-new -> gh repo create -> add formula -> commit/push -> validate -> summary.
+- Resume support via stored run state.
+- CI and release workflows enabled on this repo.
+
+## Next Steps
+- Add optional validation modes: `brew audit --new`, `brew test`, or `brew install` for the created formula.
+- Improve error messaging and remediation tips (especially for `gh` auth).
+- Decide how to handle `brew create` editor flow more cleanly across platforms.
